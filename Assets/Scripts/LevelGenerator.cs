@@ -25,6 +25,14 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
+        for (int i = -SIZE/2; i <= SIZE/2; i++)
+        {
+            Instantiate(wall, new Vector2(i * 0.17f, SIZE * 0.17f / 2), Quaternion.Euler(0, 0, 90));
+            Instantiate(wall, new Vector2(i * 0.17f, -SIZE * 0.17f / 2), Quaternion.Euler(0, 0, 270));
+            Instantiate(wall, new Vector2(SIZE * 0.17f / 2, i * 0.17f), Quaternion.identity);
+            Instantiate(wall, new Vector2(-SIZE * 0.17f / 2, i * 0.17f), Quaternion.Euler(0, 0, 180));
+        }
+
         //Instantiate(dot, new Vector2(x * 0.15f, y * 0.15f), Quaternion.identity);
 
     }

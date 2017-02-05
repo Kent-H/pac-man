@@ -5,10 +5,10 @@ using UnityEngine;
 public class MoveLogic : MonoBehaviour
 {
     //distance travelled per game tick
-    static float SPEED = 0.017f;
+    public float Speed = 0.017f;
 
     //whether or not the player will continue moving when the key is released
-    static bool CONTINTUE_MOVING_ON_KEYUP = true;
+    public bool CONTINTUE_MOVING_ON_KEYUP = true;
 
     //remember all the arrow keys that are pressed
     //this is kept ordered from the most- to least-recently pressed
@@ -62,20 +62,13 @@ public class MoveLogic : MonoBehaviour
         if (direction != Vector2.zero)
         {
             //if there is open space
-            if (isValidMove(direction))
+            if (isValidMove(direction, Speed))
             {
                 //move the player (pac-man) in the specified direction
                 Vector2 pos = transform.position;
-                GetComponent<Rigidbody2D>().MovePosition(pos + direction * SPEED);
+                GetComponent<Rigidbody2D>().MovePosition(pos + direction * Speed);
             }
         }
-    }
-
-    //helper to check if moving would cause a collision
-    bool isValidMove(Vector2 dir)
-    {
-        //parameters are pulled from the Box2DCollier object, so modifying the size of the player shouldn't break this
-        return Physics2D.BoxCast(transform.position, GetComponent<BoxCollider2D>().size, 0, dir, SPEED, LayerMask.GetMask("solids")).collider == null;
     }
 
     //Recalculate the direction of movement based on depressed key's depression order, map space, and 
@@ -86,7 +79,7 @@ public class MoveLogic : MonoBehaviour
         {
             var dir = GetDirectionFor(key);
             //ensure that the player can actually move in this direction
-            if (isValidMove(dir))
+            if (isValidMove(dir, Speed))
             {
                 //only allow a key when the opposite key isn't pressed at the same time (up & down) or (left & right)
                 //up & down
@@ -130,6 +123,13 @@ public class MoveLogic : MonoBehaviour
                 Debug.LogError(key);
                 return direction;
         }
+    }
+
+    //helper to check if moving would cause a collision
+    bool isValidMove(Vector2 dir, float dist)
+    {
+        //parameters are pulled from the Box2DCollier object, so modifying the size of the player shouldn't break this
+        return Physics2D.BoxCast(transform.position, GetComponent<BoxCollider2D>().size, 0, dir, dist, LayerMask.GetMask("solids")).collider == null;
     }
 
 }
