@@ -86,7 +86,6 @@ public class Ghost : MonoBehaviour
                 //valid direction found, we will go this way
                 closestDirection = options[i];
                 closestDistance = playerDistance;
-                Debug.Log(playerDistance);
             }
         }
 

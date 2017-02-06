@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class Dot : MonoBehaviour
 {
-    void OnTriggerEnter2D(Collider2D co)
+    void OnTriggerStay2D(Collider2D co)
     {
         if (co.name == "Player")
-        {
-            Destroy(gameObject);
-        }
+            if (Vector2.Distance(co.transform.position, transform.position) < 0.03)
+                Destroy(gameObject);
     }
 }

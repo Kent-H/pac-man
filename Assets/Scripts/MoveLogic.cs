@@ -14,8 +14,19 @@ public class MoveLogic : MonoBehaviour
     //this is kept ordered from the most- to least-recently pressed
     List<KeyCode> keyDownOrder = new List<KeyCode>();
 
+    //where to return the player when they die
+    Vector2 spawnPoint;
+
     //direction that the player is moving
     Vector2 direction = Vector2.zero;
+
+    //is the player still alive?
+    bool dead = false;
+
+    void Start()
+    {
+        spawnPoint = new Vector2(0, -0.17f);
+    }
 
     //process all key events
     void OnGUI()
@@ -42,31 +53,62 @@ public class MoveLogic : MonoBehaviour
         {
             keyDownOrder.Remove(key);
         }
-
-
     }
 
-    void Update()
+    void OnTriggerEnter2D(Collider2D co)
     {
-        //always face the direction that we're moving
-        if (direction != Vector2.zero)
-            GetComponent<Rigidbody2D>().MoveRotation(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+        //when colliding with a ghost
+        if (co.gameObject.tag == "ghost")
+        {
+            //start the death animation
+            GetComponent<Animator>().SetBool("dead", true);
+
+            //stop moving
+            dead = true;
+            direction = Vector2.zero;
+            GetComponent<Rigidbody2D>().MoveRotation(0);
+        }
     }
 
+    void OnDeathComplete()
+    {
+        //move to starting point
+        GetComponent<Rigidbody2D>().MovePosition(spawnPoint);
+
+        //reset the rotation
+        direction = GetMostPreferredDirection();
+        GetComponent<Rigidbody2D>().MoveRotation(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+    }
+
+    void OnRespawn()
+    {
+        //stop the death animation
+        GetComponent<Animator>().SetBool("dead", false);
+        GetComponent<Animator>().SetBool("moving", false);
+
+        //resume player control
+        dead = false;
+    }
 
     //To ensure consistent movement, we're using the fixedUpdate method
     void FixedUpdate()
     {
-        direction = GetMostPreferredDirection();
-
-        if (direction != Vector2.zero)
+        if (!dead)
         {
-            //if there is open space
-            if (isValidMove(direction, Speed))
+            direction = GetMostPreferredDirection();
+
+            if (direction != Vector2.zero && isValidMove(direction, Speed))
             {
                 //move the player (pac-man) in the specified direction
-                Vector2 pos = transform.position;
+                Vector2 pos = GetComponent<Rigidbody2D>().position;
                 GetComponent<Rigidbody2D>().MovePosition(pos + direction * Speed);
+                GetComponent<Rigidbody2D>().MoveRotation(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+
+                GetComponent<Animator>().SetBool("moving", true);
+            }
+            else
+            {
+                GetComponent<Animator>().SetBool("moving", false);
             }
         }
     }

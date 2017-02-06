@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: cb153227ccca8b545b9f46d160476d0c
-timeCreated: 1486314563
+timeCreated: 1486341364
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -18,6 +18,14 @@ TextureImporter:
     21300022: all_sprites_0
     21300024: blinky_right_1
     21300026: blinky_right_2
+    21300028: clyde_right_2
+    21300030: clyde_right_1
+    21300032: death_6
+    21300034: death_7
+    21300036: death_8
+    21300038: death_9
+    21300040: death_10
+    21300042: death_11
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -217,23 +225,10 @@ TextureImporter:
       name: wall
       rect:
         serializedVersion: 2
-        x: 312
-        y: 124
+        x: 450
+        y: 223
         width: 3
         height: 20
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: all_sprites_0
-      rect:
-        serializedVersion: 2
-        x: 323
-        y: 134
-        width: 4
-        height: 1
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -260,6 +255,110 @@ TextureImporter:
         y: 169
         width: 14
         height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: clyde_right_2
+      rect:
+        serializedVersion: 2
+        x: 473
+        y: 121
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: clyde_right_1
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 121
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_6
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 233
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_7
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 233
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_8
+      rect:
+        serializedVersion: 2
+        x: 616
+        y: 233
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_9
+      rect:
+        serializedVersion: 2
+        x: 632
+        y: 233
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_10
+      rect:
+        serializedVersion: 2
+        x: 648
+        y: 233
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: death_11
+      rect:
+        serializedVersion: 2
+        x: 664
+        y: 233
+        width: 15
+        height: 15
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
