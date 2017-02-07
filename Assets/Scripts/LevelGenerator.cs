@@ -12,8 +12,8 @@ public class LevelGenerator : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //store grid space that has already been used
-        bool[,] complete = new bool[11, 11];
+        //store grid space that has already been used (false => unused)
+        bool[,] tileUsed = new bool[11, 11];
 
         //horizontal and vertical walls
         bool[,] vWalls = new bool[Size - 1, Size];
@@ -31,7 +31,7 @@ public class LevelGenerator : MonoBehaviour
         {
             //mark the entire box as used space
             for (int y = 0; y < 3; y++)
-                complete[Size / 2 + x - 1, Size / 2 + y - 1] = true;
+                tileUsed[Size / 2 + x - 1, Size / 2 + y - 1] = true;
 
             //top and bottom border
             hWalls[Size / 2 + x - 1, Size / 2 + 1] = true;
@@ -47,15 +47,15 @@ public class LevelGenerator : MonoBehaviour
         
         //randomly generate 12 "hallways"
         for (int i = 0; i < 12; i++)
-            RandomHallway(complete, vWalls, hWalls, 0.4f);
+            RandomHallway(tileUsed, vWalls, hWalls, 0.4f);
 
         //now that we've devided where everything will go, place the game elements
-        Generate(complete, vWalls, hWalls);
+        Generate(tileUsed, vWalls, hWalls);
     }
 
 
     //places entities into the game
-    void Generate(bool[,] complete, bool[,] vertical, bool[,] horizontal)
+    void Generate(bool[,] tileUsed, bool[,] vertical, bool[,] horizontal)
     {
         var dot = Resources.Load("Prefabs/Dot");
         var wall = Resources.Load("Prefabs/Wall");
@@ -73,7 +73,7 @@ public class LevelGenerator : MonoBehaviour
         for (int x = 0; x < Size; x++)
             for (int y = 0; y < Size; y++)
                 //only generate walls inside the grid
-                if (complete[x, y])
+                if (tileUsed[x, y])
                     Instantiate(dot, new Vector2((-Size / 2f + x + 0.5f) * TileSize, (-Size / 2f + y + 0.5f) * TileSize), Quaternion.identity);
 
         //all vertical walls, or dots where there are no walls
@@ -86,7 +86,7 @@ public class LevelGenerator : MonoBehaviour
                 }
                 else
                 {
-                    if (complete[x, y] || complete[x + 1, y])
+                    if (tileUsed[x, y] || tileUsed[x + 1, y])
                         Instantiate(dot, new Vector2((-Size / 2f + x + 1) * TileSize, (-Size / 2f + y + 0.5f) * TileSize), Quaternion.identity);
                 }
             }
@@ -101,7 +101,7 @@ public class LevelGenerator : MonoBehaviour
                 }
                 else
                 {
-                    if (complete[x, y] || complete[x, y + 1])
+                    if (tileUsed[x, y] || tileUsed[x, y + 1])
                         Instantiate(dot, new Vector2((-Size / 2f + x + +0.5f) * TileSize, (-Size / 2f + y + 1) * TileSize), Quaternion.identity);
                 }
             }
@@ -111,17 +111,17 @@ public class LevelGenerator : MonoBehaviour
     //
     //this is done by choosing a random adjacent tile, 
     //and then moving through unused space a tile at a time, keeping to the left as much as possible
-    void RandomHallway(bool[,] complete, bool[,] vWalls, bool[,] hWalls, float endChance)
+    void RandomHallway(bool[,] tileUsed, bool[,] vWalls, bool[,] hWalls, float endChance)
     {
         Vector2 position, direction;
-        FindRandomStart(complete, out position, out direction);
+        FindRandomStart(tileUsed, out position, out direction);
 
         int hallwayLength = 0;
         while (true)
         {
             hallwayLength++;
             //mark this tile complete
-            complete[(int)position.x, (int)position.y] = true;
+            tileUsed[(int)position.x, (int)position.y] = true;
 
             //create a wall on every side of this tile
             //except the direction we came from, remove that wall instead
@@ -145,7 +145,7 @@ public class LevelGenerator : MonoBehaviour
             //should we end the hallway?
             if (hallwayLength > 3 && Random.value < endChance &&
                 IsInBounds(position.x + left.x, position.y + left.y) &&
-                complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                tileUsed[(int)(position.x + left.x), (int)(position.y + left.y)])
             {
                 EndHallway(vWalls, hWalls, position, left);
                 return;
@@ -155,7 +155,7 @@ public class LevelGenerator : MonoBehaviour
 
             //always try to go left first
             if (IsInBounds(position.x + left.x, position.y + left.y) &&
-                !complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                !tileUsed[(int)(position.x + left.x), (int)(position.y + left.y)])
             {
                 direction = left;
             }
@@ -165,20 +165,20 @@ public class LevelGenerator : MonoBehaviour
                 //if we can, cleanly end the hallway
                 if (hallwayLength > 3 &&
                     IsInBounds(position.x + left.x, position.y + left.y) &&
-                    complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                    tileUsed[(int)(position.x + left.x), (int)(position.y + left.y)])
                     EndHallway(vWalls, hWalls, position, left);
 
                 //if straight is out of bounds, don't continue
                 return;
             }
             //second part of move-straight check
-            else if (!complete[(int)(position.x + direction.x), (int)(position.y + direction.y)])
+            else if (!tileUsed[(int)(position.x + direction.x), (int)(position.y + direction.y)])
             {
                 //nothing to do
             }
             //finally try right
             else if (IsInBounds(position.x + right.x, position.y + right.y) &&
-                !complete[(int)(position.x + right.x), (int)(position.y + right.y)])
+                !tileUsed[(int)(position.x + right.x), (int)(position.y + right.y)])
             {
                 direction = right;
             }
@@ -188,7 +188,7 @@ public class LevelGenerator : MonoBehaviour
                 //try to cleanly end the hallway
                 if (hallwayLength > 3 &&
                     IsInBounds(position.x + left.x, position.y + left.y) &&
-                    complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                    tileUsed[(int)(position.x + left.x), (int)(position.y + left.y)])
                     EndHallway(vWalls, hWalls, position, left);
 
                 //don't continue
@@ -198,6 +198,45 @@ public class LevelGenerator : MonoBehaviour
             position += direction;
         }
 
+    }
+
+    //randomly selects an unused tile that is adjacent to a used tile
+    //returns the unused tile as well as the direction traveled from the occupied tile
+    void FindRandomStart(bool[,] tileUsed, out Vector2 position, out Vector2 direction)
+    {
+        //start in the center and pick a random direction
+        float dir = Random.value * 2 * Mathf.PI;
+        float xAmount = Mathf.Cos(dir);
+        float yAmount = Mathf.Sin(dir);
+        direction = Vector2.zero;
+        int x = 0, y = 0;
+
+        //march outward until an unused tile is found
+        while (!IsInBounds(x + Size / 2, y + Size / 2) || tileUsed[x + Size / 2, y + Size / 2])
+        {
+            if ((Mathf.Abs(x) + 1) / Mathf.Abs(xAmount) < (Mathf.Abs(y) + 1) / Mathf.Abs(yAmount))
+            {
+                direction = xAmount > 0 ? Vector2.right : Vector2.left;
+                x += xAmount > 0 ? 1 : -1;
+            }
+            else
+            {
+                direction = yAmount > 0 ? Vector2.up : Vector2.down;
+                y += yAmount > 0 ? 1 : -1;
+            }
+
+            //if we leave the grid without finding an open space
+            if (!IsInBounds( x + Size / 2, y + Size / 2))
+            {
+                //restart
+                dir = Random.value * 2 * Mathf.PI;
+                xAmount = Mathf.Cos(dir);
+                yAmount = Mathf.Sin(dir);
+                x = y = 0;
+            }
+        }
+
+        position = new Vector2(x + Size / 2, y + Size / 2);
     }
 
     //to end a hallway, attach it to the left
@@ -213,44 +252,7 @@ public class LevelGenerator : MonoBehaviour
             vWalls[(int)position.x, (int)position.y] = false;
     }
 
-
-    void FindRandomStart(bool[,] complete, out Vector2 position, out Vector2 direction)
-    {
-        //start in the center and pick a random direction
-        float dir = Random.value * 2 * Mathf.PI;
-        float xAmount = Mathf.Cos(dir);
-        float yAmount = Mathf.Sin(dir);
-        direction = Vector2.zero;
-        int x = 0, y = 0;
-
-        //march until an unused space is found
-        while (!IsInBounds(x + Size / 2, y + Size / 2) || complete[x + Size / 2, y + Size / 2])
-        {
-            if ((Mathf.Abs(x) + 1) / Mathf.Abs(xAmount) < (Mathf.Abs(y) + 1) / Mathf.Abs(yAmount))
-            {
-                direction = xAmount > 0 ? Vector2.right : Vector2.left;
-                x += xAmount > 0 ? 1 : -1;
-            }
-            else
-            {
-                direction = yAmount > 0 ? Vector2.up : Vector2.down;
-                y += yAmount > 0 ? 1 : -1;
-            }
-
-            //if we leave the grid without finding an open space
-            if (x + Size / 2 < 0 || y + Size / 2 < 0 || x + Size / 2 > Size || y + Size / 2 > Size)
-            {
-                //restart
-                dir = Random.value * 2 * Mathf.PI;
-                xAmount = Mathf.Cos(dir);
-                yAmount = Mathf.Sin(dir);
-                x = y = 0;
-            }
-        }
-
-        position = new Vector2(x + Size / 2, y + Size / 2);
-    }
-
+    //bounds check for the map
     bool IsInBounds(float x, float y)
     {
         return x >= 0 && y >= 0 && x < Size && y < Size;

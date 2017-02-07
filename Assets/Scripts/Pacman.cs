@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveLogic : MonoBehaviour
+public class Pacman : MonoBehaviour
 {
     //distance travelled per game tick
     public float Speed = 0.017f;
@@ -25,10 +25,11 @@ public class MoveLogic : MonoBehaviour
 
     void Start()
     {
-        spawnPoint = new Vector2(0, -0.17f);
+        //always respawn at the initial position
+        spawnPoint = transform.position;
     }
 
-    //process all key events
+    //using this to process all arrowkey events
     void OnGUI()
     {
         //ignore anything that's not a keyboard key
@@ -38,9 +39,7 @@ public class MoveLogic : MonoBehaviour
             key != KeyCode.DownArrow &&
             key != KeyCode.LeftArrow &&
             key != KeyCode.RightArrow))
-        {
             return;
-        }
 
         //if the key was pressed
         if (Event.current.type == EventType.keyDown)
@@ -55,49 +54,14 @@ public class MoveLogic : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D co)
-    {
-        //when colliding with a ghost
-        if (co.gameObject.tag == "ghost")
-        {
-            //start the death animation
-            GetComponent<Animator>().SetBool("dead", true);
-
-            //stop moving
-            dead = true;
-            direction = Vector2.zero;
-            GetComponent<Rigidbody2D>().MoveRotation(0);
-        }
-    }
-
-    void OnDeathComplete()
-    {
-        //move to starting point
-        GetComponent<Rigidbody2D>().MovePosition(spawnPoint);
-
-        //reset the rotation
-        direction = GetMostPreferredDirection();
-        GetComponent<Rigidbody2D>().MoveRotation(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
-    }
-
-    void OnRespawn()
-    {
-        //stop the death animation
-        GetComponent<Animator>().SetBool("dead", false);
-        GetComponent<Animator>().SetBool("moving", false);
-
-        //resume player control
-        dead = false;
-    }
-
-    //To ensure consistent movement, we're using the fixedUpdate method
+    //to ensure consistent movement, using FixedUpdate() instead of Update()
     void FixedUpdate()
     {
         if (!dead)
         {
             direction = GetMostPreferredDirection();
 
-            if (direction != Vector2.zero && isValidMove(direction, Speed))
+            if (direction != Vector2.zero && IsValidMove(direction, Speed))
             {
                 //move the player (pac-man) in the specified direction
                 Vector2 pos = GetComponent<Rigidbody2D>().position;
@@ -113,7 +77,7 @@ public class MoveLogic : MonoBehaviour
         }
     }
 
-    //Recalculate the direction of movement based on depressed key's depression order, map space, and 
+    //Recalculate the direction of movement based on depressed key's depression order, adjacent walls, and current direction
     Vector3 GetMostPreferredDirection()
     {
         //try each depressed key to look for valid moves.
@@ -121,7 +85,7 @@ public class MoveLogic : MonoBehaviour
         {
             var dir = GetDirectionFor(key);
             //ensure that the player can actually move in this direction
-            if (isValidMove(dir, Speed))
+            if (IsValidMove(dir, Speed))
             {
                 //only allow a key when the opposite key isn't pressed at the same time (up & down) or (left & right)
                 //up & down
@@ -172,10 +136,49 @@ public class MoveLogic : MonoBehaviour
     }
 
     //helper to check if moving would cause a collision
-    bool isValidMove(Vector2 dir, float dist)
+    bool IsValidMove(Vector2 dir, float dist)
     {
         //parameters are pulled from the Box2DCollier object, so modifying the size of the player shouldn't break this
         return Physics2D.BoxCast(transform.position, GetComponent<BoxCollider2D>().size, 0, dir, dist, LayerMask.GetMask("solids")).collider == null;
+    }
+
+
+
+    void OnTriggerEnter2D(Collider2D co)
+    {
+        //when colliding with a ghost
+        if (co.gameObject.tag == "ghost")
+        {
+            //start the death animation
+            GetComponent<Animator>().SetBool("dead", true);
+
+            //stop moving
+            dead = true;
+            direction = Vector2.zero;
+            GetComponent<Rigidbody2D>().MoveRotation(0);
+        }
+    }
+
+    //callback from death animation
+    void OnDeathComplete()
+    {
+        //move to starting point
+        GetComponent<Rigidbody2D>().MovePosition(spawnPoint);
+
+        //reset the rotation
+        direction = GetMostPreferredDirection();
+        GetComponent<Rigidbody2D>().MoveRotation(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+    }
+
+    //callback from death animation
+    void OnRespawn()
+    {
+        //stop the death animation
+        GetComponent<Animator>().SetBool("dead", false);
+        GetComponent<Animator>().SetBool("moving", false);
+
+        //resume player control
+        dead = false;
     }
 
 }
