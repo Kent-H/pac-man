@@ -29,30 +29,27 @@ public class LevelGenerator : MonoBehaviour
         //plus one hallway around it. (4x3 box)
         for (int x = 0; x < 4; x++)
         {
-            //for the purpose of finding hallways, mark the entire box as used
+            //mark the entire box as used space
             for (int y = 0; y < 3; y++)
                 complete[Size / 2 + x - 1, Size / 2 + y - 1] = true;
 
+            //top and bottom border
             hWalls[Size / 2 + x - 1, Size / 2 + 1] = true;
             hWalls[Size / 2 + x - 1, Size / 2 - 2] = true;
         }
 
         for (int y = 0; y < 3; y++)
         {
+            //left and right border
             vWalls[Size / 2 - 2, Size / 2 + y - 1] = true;
             vWalls[Size / 2 + 2, Size / 2 + y - 1] = true;
         }
-
-        for (int i = 0; i < 10; i++)
+        
+        //randomly generate 12 "hallways"
+        for (int i = 0; i < 12; i++)
             RandomHallway(complete, vWalls, hWalls, 0.4f);
 
-        for (int x = 0; x < Size; x++)
-            for (int y = 0; y < Size; y++)
-                if (complete[x, y])
-                    Debug.DrawLine(
-                        new Vector3((x - Size / 2f + 0.5f) * 0.17f, (y - Size / 2f + 0.5f) * 0.17f - 0.04f, 0),
-                        new Vector3((x - Size / 2f + 0.5f) * 0.17f, (y - Size / 2f + 0.5f) * 0.17f, 0), Color.green, 100);
-
+        //now that we've devided where everything will go, place the game elements
         Generate(complete, vWalls, hWalls);
     }
 
@@ -148,16 +145,7 @@ public class LevelGenerator : MonoBehaviour
                 IsInBounds(position.x + left.x, position.y + left.y) &&
                 complete[(int)(position.x + left.x), (int)(position.y + left.y)])
             {
-                //to end the hallway, attach it to the left
-                if (left == Vector2.up)
-                    hWalls[(int)position.x, (int)position.y] = false;
-                else if (left == Vector2.down)
-                    hWalls[(int)position.x, (int)position.y - 1] = false;
-                else if (left == Vector2.left)
-                    vWalls[(int)position.x - 1, (int)position.y] = false;
-                else if (left == Vector2.right)
-                    vWalls[(int)position.x, (int)position.y] = false;
-
+                EndHallway(vWalls, hWalls, position, left);
                 return;
             }
 
@@ -169,9 +157,20 @@ public class LevelGenerator : MonoBehaviour
             {
                 direction = left;
             }
-            // then try straight
-            else if (IsInBounds(position.x + direction.x, position.y + direction.y) &&
-                !complete[(int)(position.x + direction.x), (int)(position.y + direction.y)])
+            //then try straight.  There's a special out-of-bounds case here (to avoid a circle-the-map situation)
+            else if (!IsInBounds(position.x + direction.x, position.y + direction.y))
+            {
+                //if we can, cleanly end the hallway
+                if (hallwayLength > 3 &&
+                    IsInBounds(position.x + left.x, position.y + left.y) &&
+                    complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                    EndHallway(vWalls, hWalls, position, left);
+
+                //if straight is out of bounds, don't continue
+                return;
+            }
+            //second part of move-straight check
+            else if (!complete[(int)(position.x + direction.x), (int)(position.y + direction.y)])
             {
                 //nothing to do
             }
@@ -184,12 +183,32 @@ public class LevelGenerator : MonoBehaviour
             //if we're trapped in a corner
             else
             {
+                //try to cleanly end the hallway
+                if (hallwayLength > 3 &&
+                    IsInBounds(position.x + left.x, position.y + left.y) &&
+                    complete[(int)(position.x + left.x), (int)(position.y + left.y)])
+                    EndHallway(vWalls, hWalls, position, left);
+
+                //don't continue
                 return;
             }
 
             position += direction;
         }
 
+    }
+
+    //to end a hallway, attach it to the left
+    void EndHallway(bool[,] vWalls, bool[,] hWalls, Vector2 position, Vector2 left)
+    {
+        if (left == Vector2.up)
+            hWalls[(int)position.x, (int)position.y] = false;
+        else if (left == Vector2.down)
+            hWalls[(int)position.x, (int)position.y - 1] = false;
+        else if (left == Vector2.left)
+            vWalls[(int)position.x - 1, (int)position.y] = false;
+        else if (left == Vector2.right)
+            vWalls[(int)position.x, (int)position.y] = false;
     }
 
 
