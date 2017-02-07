@@ -129,21 +129,25 @@ public class MoveLogic : MonoBehaviour
                 {
                     //one of the two must not be pressed
                     if (!keyDownOrder.Contains(KeyCode.UpArrow) || !keyDownOrder.Contains(KeyCode.DownArrow))
-                        return dir;
+                        //only exit immediately if we're not already moving in this direction (try to auto-turn)
+                        if (dir != direction)
+                            return dir;
                 }
                 //left & right
                 else if (key == KeyCode.LeftArrow || key == KeyCode.RightArrow)
                 {
                     if (!keyDownOrder.Contains(KeyCode.LeftArrow) || !keyDownOrder.Contains(KeyCode.RightArrow))
-                        return dir;
+                        //only exit immediately if we're not already moving in this direction (try to auto-turn)
+                        if (dir != direction)
+                            return dir;
                 }
             }
         }
-        //if no key is pressed, simply continue on the current trajectory.
+        //if no key is pressed, should we continue on the current trajectory?
         return CONTINTUE_MOVING_ON_KEYUP ? direction : Vector2.zero;
     }
 
-
+    //utility key-direction mapping
     Vector2 GetDirectionFor(KeyCode key)
     {
         //convert the key to a direction

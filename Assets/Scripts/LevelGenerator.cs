@@ -107,12 +107,14 @@ public class LevelGenerator : MonoBehaviour
             }
     }
 
+    //generate a random hallway
+    //
+    //this is done by choosing a random adjacent tile, 
+    //and then moving through unused space a tile at a time, keeping to the left as much as possible
     void RandomHallway(bool[,] complete, bool[,] vWalls, bool[,] hWalls, float endChance)
     {
         Vector2 position, direction;
         FindRandomStart(complete, out position, out direction);
-
-        Debug.DrawLine(Vector3.zero, direction, Color.green, 1000);
 
         int hallwayLength = 0;
         while (true)
@@ -218,7 +220,6 @@ public class LevelGenerator : MonoBehaviour
         float dir = Random.value * 2 * Mathf.PI;
         float xAmount = Mathf.Cos(dir);
         float yAmount = Mathf.Sin(dir);
-        Debug.DrawLine(Vector3.zero, new Vector3(xAmount, yAmount, 0), Color.green, 1000);
         direction = Vector2.zero;
         int x = 0, y = 0;
 
